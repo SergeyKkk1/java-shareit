@@ -38,10 +38,10 @@ public class ItemServiceImpl implements ItemService {
         if (!item.getOwnerId().equals(ownerId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only owner can edit item");
         }
-        if (dto.getName() != null) {
+        if (dto.getName() != null && !dto.getName().isBlank()) {
             item.setName(dto.getName());
         }
-        if (dto.getDescription() != null) {
+        if (dto.getDescription() != null && !dto.getDescription().isBlank()) {
             item.setDescription(dto.getDescription());
         }
         if (dto.getAvailable() != null) {
@@ -59,8 +59,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getByOwner(Long ownerId) {
-        return itemRepository.findAll().stream()
-                .filter(i -> ownerId.equals(i.getOwnerId()))
+        return itemRepository.findByOwnerId(ownerId).stream()
                 .map(itemMapper::toDto)
                 .toList();
     }
@@ -70,11 +69,7 @@ public class ItemServiceImpl implements ItemService {
         if (text == null || text.isBlank()) {
             return List.of();
         }
-        String needle = text.toLowerCase();
-        return itemRepository.findAll().stream()
-                .filter(i -> Boolean.TRUE.equals(i.getAvailable()))
-                .filter(i -> (i.getName() != null && i.getName().toLowerCase().contains(needle))
-                        || (i.getDescription() != null && i.getDescription().toLowerCase().contains(needle)))
+        return itemRepository.search(text).stream()
                 .map(itemMapper::toDto)
                 .toList();
     }

@@ -31,4 +31,19 @@ public class ItemRepository {
     public List<Item> findAll() {
         return new ArrayList<>(items.values());
     }
+
+    public List<Item> findByOwnerId(Long ownerId) {
+        return items.values().stream()
+                .filter(i -> ownerId.equals(i.getOwnerId()))
+                .toList();
+    }
+
+    public List<Item> search(String text) {
+        String needle = text.toLowerCase();
+        return items.values().stream()
+                .filter(i -> Boolean.TRUE.equals(i.getAvailable()))
+                .filter(i -> (i.getName() != null && i.getName().toLowerCase().contains(needle))
+                        || (i.getDescription() != null && i.getDescription().toLowerCase().contains(needle)))
+                .toList();
+    }
 }

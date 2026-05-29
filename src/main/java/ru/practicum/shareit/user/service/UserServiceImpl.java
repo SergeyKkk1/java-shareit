@@ -46,10 +46,10 @@ public class UserServiceImpl implements UserService {
     public UserDto update(Long id, UserDto dto) {
         User existing = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + id));
-        if (dto.getName() != null) {
+        if (dto.getName() != null && !dto.getName().isBlank()) {
             existing.setName(dto.getName());
         }
-        if (dto.getEmail() != null && !dto.getEmail().equals(existing.getEmail())) {
+        if (dto.getEmail() != null && !dto.getEmail().isBlank() && !dto.getEmail().equals(existing.getEmail())) {
             userRepository.findByEmail(dto.getEmail()).ifPresent(other -> {
                 if (!other.getId().equals(id)) {
                     throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use: " + dto.getEmail());
