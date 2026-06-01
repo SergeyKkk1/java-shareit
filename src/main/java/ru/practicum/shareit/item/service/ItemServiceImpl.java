@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.model.Comment;
@@ -91,17 +92,21 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.groupingBy(
                         c -> c.getItem().getId(),
                         Collectors.mapping(commentMapper::toDto, Collectors.toList())));
+        Map<Long, List<Booking>> bookingsByItem = bookingRepository
+                .findByItemIdInAndStatusOrderByStartDateAsc(itemIds, BookingStatus.APPROVED).stream()
+                .collect(Collectors.groupingBy(b -> b.getItem().getId()));
         return items.stream()
                 .map(item -> {
                     ItemDto dto = itemMapper.toDto(item);
                     dto.setComments(commentsByItem.getOrDefault(item.getId(), List.of()));
-                    bookingRepository
-                            .findFirstByItemIdAndStatusAndStartDateBeforeOrderByStartDateDesc(
-                                    item.getId(), BookingStatus.APPROVED, now)
+                    List<Booking> bookings = bookingsByItem.getOrDefault(item.getId(), List.of());
+                    bookings.stream()
+                            .filter(b -> b.getStartDate().isBefore(now))
+                            .reduce((a, b) -> b)
                             .ifPresent(b -> dto.setLastBooking(b.getStartDate()));
-                    bookingRepository
-                            .findFirstByItemIdAndStatusAndStartDateAfterOrderByStartDateAsc(
-                                    item.getId(), BookingStatus.APPROVED, now)
+                    bookings.stream()
+                            .filter(b -> b.getStartDate().isAfter(now))
+                            .findFirst()
                             .ifPresent(b -> dto.setNextBooking(b.getStartDate()));
                     return dto;
                 })
@@ -132,11 +137,7 @@ public class ItemServiceImpl implements ItemService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "User " + userId + " has no completed booking for item " + itemId);
         }
-        Comment comment = new Comment();
-        comment.setText(dto.getText());
-        comment.setItem(item);
-        comment.setAuthor(author);
-        comment.setCreated(now);
+        Comment comment = commentMapper.toEntity(dto, item, author, now);
         return commentMapper.toDto(commentRepository.save(comment));
     }
 }

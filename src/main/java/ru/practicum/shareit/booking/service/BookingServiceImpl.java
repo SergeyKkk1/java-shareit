@@ -43,12 +43,7 @@ public class BookingServiceImpl implements BookingService {
         if (!dto.getEnd().isAfter(dto.getStart())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "end must be after start");
         }
-        Booking booking = new Booking();
-        booking.setItem(item);
-        booking.setBorrower(booker);
-        booking.setStartDate(dto.getStart());
-        booking.setEndDate(dto.getEnd());
-        booking.setStatus(BookingStatus.WAITING);
+        Booking booking = bookingMapper.toEntity(dto, item, booker, BookingStatus.WAITING);
         return bookingMapper.toDto(bookingRepository.save(booking));
     }
 

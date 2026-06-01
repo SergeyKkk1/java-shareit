@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,6 +48,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     Optional<Booking> findFirstByItemIdAndStatusAndStartDateAfterOrderByStartDateAsc(
             Long itemId, BookingStatus status, LocalDateTime now);
+
+    List<Booking> findByItemIdInAndStatusOrderByStartDateAsc(
+            Collection<Long> itemIds, BookingStatus status);
 
     boolean existsByBorrowerIdAndItemIdAndStatusAndEndDateBefore(
             Long borrowerId, Long itemId, BookingStatus status, LocalDateTime now);
