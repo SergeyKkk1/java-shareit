@@ -114,7 +114,7 @@ class ItemServiceIntegrationTest extends AbstractIntegrationTest {
         List<ItemDto> items = itemService.getByOwner(owner.getId());
 
         assertThat(items).hasSize(1);
-        assertThat(items.get(0).getComments()).hasSize(1);
+        assertThat(items.getFirst().getComments()).hasSize(1);
     }
 
     @Test
@@ -126,12 +126,16 @@ class ItemServiceIntegrationTest extends AbstractIntegrationTest {
         List<ItemDto> found = itemService.search("drill");
 
         assertThat(found).hasSize(1);
-        assertThat(found.get(0).getName()).isEqualTo("Cordless Drill");
+        assertThat(found.getFirst().getName()).isEqualTo("Cordless Drill");
     }
 
     @Test
-    void searchWithBlankTextReturnsEmpty() {
-        assertThat(itemService.search("  ")).isEmpty();
+    void createWithUnknownRequestIdThrowsNotFound() {
+        User owner = createUser("Owner", "owner.req404@mail.com");
+
+        assertThatThrownBy(() -> itemService.create(newItemDto("X", "Y", true, 9999L), owner.getId()))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("404");
     }
 
     @Test

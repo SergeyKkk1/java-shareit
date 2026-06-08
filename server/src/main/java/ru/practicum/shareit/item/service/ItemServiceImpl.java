@@ -137,9 +137,6 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     public List<ItemDto> search(String text) {
         log.info("Searching items by text '{}'", text);
-        if (text == null || text.isBlank()) {
-            return List.of();
-        }
         return itemRepository.search(text).stream()
                 .map(itemMapper::toDto)
                 .toList();

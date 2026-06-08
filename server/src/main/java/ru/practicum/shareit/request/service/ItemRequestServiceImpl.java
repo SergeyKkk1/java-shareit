@@ -38,10 +38,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.info("Creating item request {} for user {}", dto, userId);
         User requestor = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
-        ItemRequest request = new ItemRequest();
-        request.setDescription(dto.getDescription());
-        request.setRequestor(requestor);
-        request.setCreated(LocalDateTime.now());
+        ItemRequest request = requestMapper.toEntity(dto, requestor, LocalDateTime.now());
         ItemRequestDto result = requestMapper.toDto(requestRepository.save(request));
         result.setItems(List.of());
         return result;

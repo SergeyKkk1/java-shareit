@@ -106,6 +106,19 @@ class DtoValidationTest {
     }
 
     @Test
+    void bookingWithStartEqualToEndIsInvalid() {
+        LocalDateTime moment = LocalDateTime.now().plusDays(1);
+        assertThat(validator.validate(new BookItemRequestDto(1L, moment, moment))).isNotEmpty();
+    }
+
+    @Test
+    void bookingWithEndBeforeStartIsInvalid() {
+        BookItemRequestDto dto = new BookItemRequestDto(1L,
+                LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(1));
+        assertThat(validator.validate(dto)).isNotEmpty();
+    }
+
+    @Test
     void validRequestHasNoViolations() {
         assertThat(validator.validate(new ItemRequestCreateDto("Need a drill"))).isEmpty();
     }

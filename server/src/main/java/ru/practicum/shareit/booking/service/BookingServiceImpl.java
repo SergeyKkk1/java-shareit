@@ -45,9 +45,6 @@ public class BookingServiceImpl implements BookingService {
         if (item.getOwner().getId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Owner cannot book their own item");
         }
-        if (!dto.getEnd().isAfter(dto.getStart())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "end must be after start");
-        }
         Booking booking = bookingMapper.toEntity(dto, item, booker, BookingStatus.WAITING);
         return bookingMapper.toDto(bookingRepository.save(booking));
     }

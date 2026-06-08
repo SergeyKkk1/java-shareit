@@ -83,6 +83,20 @@ class BookingControllerTest {
     }
 
     @Test
+    void createBookingWithStartEqualToEndIsRejected() throws Exception {
+        LocalDateTime moment = LocalDateTime.now().plusDays(1);
+        BookItemRequestDto dto = new BookItemRequestDto(1L, moment, moment);
+
+        mvc.perform(post("/bookings")
+                        .header(USER_ID_HEADER, 2)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest());
+
+        verify(bookingClient, never()).create(anyLong(), any());
+    }
+
+    @Test
     void approveDelegatesToClient() throws Exception {
         when(bookingClient.approve(1L, 1L, true)).thenReturn(ResponseEntity.ok(Map.of("id", 1)));
 

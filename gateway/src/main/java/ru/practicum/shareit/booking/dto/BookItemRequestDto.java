@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@StartBeforeEnd
 public class BookItemRequestDto {
 
     @NotNull(message = "itemId is required")

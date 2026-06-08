@@ -15,6 +15,7 @@ import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -138,5 +139,15 @@ class ItemControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(new CommentDto("Nice"))))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void searchWithBlankTextReturnsEmptyWithoutCallingClient() throws Exception {
+        mvc.perform(get("/items/search").param("text", " "))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        verify(itemClient, never()).search(anyString());
     }
 }

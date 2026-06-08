@@ -60,17 +60,6 @@ class BookingServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void createWithEndNotAfterStartThrowsBadRequest() {
-        User owner = createUser("Owner", "o4@mail.com");
-        User booker = createUser("Booker", "b4@mail.com");
-        Item item = createItem("Bike", "Nice", true, owner);
-
-        assertThatThrownBy(() -> bookingService.create(new BookingCreateDto(item.getId(), start, start), booker.getId()))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("400");
-    }
-
-    @Test
     void approveByOwnerSetsApproved() {
         User owner = createUser("Owner", "o5@mail.com");
         User booker = createUser("Booker", "b5@mail.com");
